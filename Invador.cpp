@@ -12,6 +12,7 @@ Invador::Invador(int width, int height, int x, int y, int speedY)
     this->angleX = 0;
     this->outOfGame = false;
     this->angleY = speedY;
+    this->inSleep = false;
 }
 
 Invador::~Invador()
@@ -31,11 +32,6 @@ void Invador::paintInvador(){
 }
 
 void Invador::step(){
-            // int tmpY = y + this->angleY;
-            // int tmpX = x + this->angleX;
-            // if (! (tmpX < 0 || tmpX > scrX)) 
-            //     x += this->angleX;
-            // if (! (tmpY < 0 || tmpY > scrY))              
-            //     y += this->angleY;
+            
         this->y = this->y+ this->angleY;
 }

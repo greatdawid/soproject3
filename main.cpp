@@ -88,42 +88,6 @@ void checkingCollision(int number){
       }
 }
 
-int whoIsSlower(int first, int second){
-    if (invadors[first]->angleY > invadors[second]->angleY)
-    {
-        return second;
-    }
-    else
-    {
-        return first;
-    }
-    
-    
-}
-
-void checkingCollisionInvadors(int number){
-     for(int i = 0; i < invadors.size(); i++ )
-        {
-            if(invadors[i]->health < 0) continue;
-                if (i == number) continue;                 
-                int x = invadors[i]->x;
-                int y = invadors[i]->y;
-                if (isNear(x,y,invadors[number]->x, invadors[number]->y)){
-                    int slower;
-                    slower = whoIsSlower(i,number);
-                    if (invadors[slower] -> inSleep)
-                    {
-                        cv.notify_all();
-                    }
-                    else
-                    {
-                        invadors[slower]->inSleep = false;
-                    }    
-            }
-      }
-}
-
-
 
 void ballFunction(int ballId){
     while (isRunning)
@@ -155,14 +119,13 @@ bool invadorOutOfScreen(int y){
 void invadorFunction(int invadorId){
     while(isRunning && invadors[invadorId]->health > 0){
         if(invadorOutOfScreen(invadors[invadorId]->y)) break;
-          // checkingCollisionInvadors(invadorId);
+
             std::unique_lock<std::mutex> lck(mtx);
             while (invadors[invadorId]->inSleep) cv.wait(lck);       
-            //cv.notify_all();
             mtxInvadors.lock();
             invadors[invadorId]->step();
             mtxInvadors.unlock();
-            usleep(800000);
+            usleep(600000);
     }
 }
 
