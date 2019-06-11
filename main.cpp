@@ -69,6 +69,7 @@ bool ballOutofScreen(int y){
 }
 
 void checkingCollision(int number){
+
      if(ballOutofScreen(balls[number]->y)) {
          balls[number]->hit = true;
          }  
@@ -84,6 +85,8 @@ void checkingCollision(int number){
                     invadors[i]->health = -1;
                     mtxInvadors.unlock();
                     balls[number]->hit = true;
+                    cv.notify_one();
+                    return;
             }
       }
 }
@@ -108,6 +111,7 @@ void ballFunction(int ballId){
 bool invadorOutOfScreen(int y){
     if (y + 1 > winY)
     {
+        cv.notify_one();
         return true;
     }
     else
@@ -120,8 +124,8 @@ void invadorFunction(int invadorId){
     while(isRunning && invadors[invadorId]->health > 0){
         if(invadorOutOfScreen(invadors[invadorId]->y)) break;
 
-            std::unique_lock<std::mutex> lck(mtx);
-            while (invadors[invadorId]->inSleep) cv.wait(lck);       
+            //std::unique_lock<std::mutex> lck(mtx);
+           // while (invadors[invadorId]->inSleep) cv.wait(lck);       
             mtxInvadors.lock();
             invadors[invadorId]->step();
             mtxInvadors.unlock();
@@ -132,21 +136,21 @@ void invadorFunction(int invadorId){
 void summonInvadors(){
     int i=0;
     int tmp;
+    std::unique_lock<std::mutex> lck(mtx); 
     while (isRunning)
     {   
-        sleep(2);
+       // sleep(2);
         int positionX = rand()%winX-2 + 2;
        // Invador *inv = new Invador(3,3,positionX,1);
-        
-        mtxInvadors.lock();
         do
         {
             tmp=rand()%3;
         } while (tmp==0);
-        
+        mtxInvadors.lock();
         invadors.push_back(new Invador(3,3,positionX,-2,tmp));
         invadorsThreads.push_back(std::thread(invadorFunction,i));   
         mtxInvadors.unlock();
+        cv.wait(lck);
         i++;
      //  if(i>20) return;
         
